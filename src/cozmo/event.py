@@ -410,7 +410,7 @@ class Dispatcher(base.Base):
                     handler.disable()
                 handlers.add(handler)
 
-        return asyncio.ensure_future(self._dispatch_event(event, handlers), loop=self._loop)
+        return asyncio.ensure_future(self._dispatch_event(event, handlers))
 
     async def _dispatch_event(self, event, handlers):
         # iterate through events from child->parent
@@ -472,7 +472,7 @@ class Dispatcher(base.Base):
         Raises:
             :class:`asyncio.TimeoutError`
         '''
-        f = asyncio.Future(loop=self._loop) # replace with loop.create_future in 3.5.2
+        f = asyncio.Future() # replace with loop.create_future in 3.5.2
         # TODO: add a timer that logs every 5 seconds that the event is still being
         # waited on.  Will help novice programmers realize why their program is hanging.
         f = oneshot(f)
@@ -485,7 +485,7 @@ class Dispatcher(base.Base):
 
         self.add_event_handler(event, f)
         if timeout:
-             return await asyncio.wait_for(f, timeout, loop=self._loop)
+             return await asyncio.wait_for(f, timeout)
         return await f
 
 
@@ -589,7 +589,7 @@ async def wait_for_first(*futures, discard_remaining=True, loop=None):
     Returns:
         The first result, or raised exception
     '''
-    done, pending = await asyncio.wait(futures, loop=loop, return_when=asyncio.FIRST_COMPLETED)
+    done, pending = await asyncio.wait(futures, return_when=asyncio.FIRST_COMPLETED)
 
     # collect the results from all "done" futures; only one will be returned
     result = None

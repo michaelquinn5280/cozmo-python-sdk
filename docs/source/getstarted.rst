@@ -44,7 +44,10 @@ For your convenience, here is a video detailing the first few simple example pro
 
 .. raw:: html
 
-   <iframe width="690" height="388" src="https://www.youtube.com/embed/YAQ_USpkxgE?rel=0" frameborder="0" allowfullscreen></iframe>
+    <video width="690" height="388" controls>
+        <source src="/videos/getting-started.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
 
 |
 

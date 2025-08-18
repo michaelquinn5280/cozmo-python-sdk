@@ -14,9 +14,15 @@ For your convenience, videos are provided showing the installation steps being f
 
 .. raw:: html
 
-   <iframe width="690" height="388" src="https://www.youtube.com/embed/gtRS3iqzSuA?rel=0" frameborder="0" allowfullscreen></iframe>
+    <video width="690" height="388" controls>
+        <source src="/videos/install-windows-ios.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
 
-   <iframe width="690" height="388" src="https://www.youtube.com/embed/9TJeK_AEFYo?rel=0" frameborder="0" allowfullscreen></iframe>   
+    <video width="690" height="388" controls>
+        <source src="/videos/install-windows-android.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
 
 |
 
@@ -33,45 +39,17 @@ run it on your computer.
 SDK Installation
 ^^^^^^^^^^^^^^^^
 
-**Important: In 2025 and later, the Cozmo SDK requires a local dependency named ``cozmoclad`` that is no longer available from PyPI.**
+To install the SDK, type the following into the Terminal window::
 
-You **must** install it manually before continuing.
-
-1. Open Command Prompt or PowerShell, then run the following to download `cozmoclad`::
-
-    curl -o cozmoclad-3.6.6-py3-none-any.whl https://raw.githubusercontent.com/DDLbots/cozmo-python-sdk/refs/heads/master/cozmoclad/cozmoclad-3.6.6-py3-none-any.whl
-
-2. Then install it::
-
-    pip3 install --user .\cozmoclad-3.6.6-py3-none-any.whl
-
-3. Finally, install the SDK itself::
-
-    pip3 install --user "cozmo[camera]"
-
-Note that the `[camera]` option adds support for processing images from Cozmo's camera.
+    pip3 install --user Pillow numpy PyOpenGL https://cozmosdk.anki.bot/1.4.12/cozmoclad-3.6.6-py3-none-any.whl https://cozmosdk.anki.bot/1.4.12/cozmo-1.4.12-py3-none-any.whl
 
 """""""""""
 SDK Upgrade
 """""""""""
 
-To upgrade the SDK from a previous install, follow these steps:
+To upgrade the SDK from a previous install, type the following into the Terminal window::
 
-1. **Uninstall the old version of `cozmoclad`**::
-
-    pip3 uninstall cozmoclad
-
-2. **Download the latest `cozmoclad` wheel**::
-
-    curl -o cozmoclad-3.6.6-py3-none-any.whl https://raw.githubusercontent.com/DDLbots/cozmo-python-sdk/refs/heads/master/cozmoclad/cozmoclad-3.6.6-py3-none-any.whl
-
-3. **Reinstall `cozmoclad`**::
-
-    pip3 install --user .\cozmoclad-3.6.6-py3-none-any.whl
-
-4. **Upgrade the SDK**::
-
-    pip3 install --user --upgrade cozmo
+    pip3 install --user --upgrade Pillow numpy PyOpenGL https://cozmosdk.anki.bot/1.4.12/cozmoclad-3.6.6-py3-none-any.whl https://cozmosdk.anki.bot/1.4.12/cozmo-1.4.12-py3-none-any.whl
 
 ^^^^^^^^^^^^^^^^^^^
 Mobile Device Setup

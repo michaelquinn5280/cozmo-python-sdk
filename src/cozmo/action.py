@@ -319,7 +319,12 @@ class Action(event.Dispatcher):
 
     def _set_aborting(self, log_abort_messages):
         if not self.is_running:
-            raise ValueError("Action isn't currently running")
+            if self.is_completed:
+                if self._enable_abort_logging and log_abort_messages:
+                    logger.info('Cannot abort action=%s - already completed with state=%s', self, self._state)
+                return
+            else:
+                raise ValueError("Action isn't currently running")
 
         if self._enable_abort_logging and log_abort_messages:
             logger.info('Aborting action=%s', self)

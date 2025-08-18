@@ -2,7 +2,7 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
-# You may obtain a copy of the License in the file LICENSE.txt or at
+# You may obtain a copy of the file LICENSE.txt or at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
@@ -134,7 +134,7 @@ class IOSConnector(DeviceConnector):
 
     async def connect(self, loop, protocol_factory, conn_check):
         if not self.usbmux:
-            self.usbmux = await usbmux.connect_to_usbmux(loop=loop)
+            self.usbmux = await usbmux.connect_to_usbmux()
 
         try:
             if self.serial is None:
@@ -354,14 +354,14 @@ class FirstAvailableConnector(DeviceConnector):
     This is the default connector used by ``connect_`` functions.
     '''
     def __init__(self):
-        super().__init__(self, enable_env_vars=False)
+        super().__init__(enable_env_vars=False)
         self.tcp = TCPConnector()
         self.ios = IOSConnector()
         self.android = AndroidConnector()
 
-    async def _do_connect(self, connector,loop, protocol_factory, conn_check):
+    async def _do_connect(self, connector, loop, protocol_factory, conn_check):
         connect = connector.connect(loop, protocol_factory, conn_check)
-        result = await asyncio.gather(connect, loop=loop, return_exceptions=True)
+        result = await asyncio.gather(connect, return_exceptions=True)
         return result[0]
 
     async def connect(self, loop, protocol_factory, conn_check):
@@ -491,18 +491,20 @@ class _LoopThread:
 
 
 def _connect_async(f, conn_factory=conn.CozmoConnection, connector=None):
-    # use the default loop, if one is available for the current thread,
-    # if not create  a new loop and make it the default.
-    #
-    # the expectation is that if the user wants explicit control over which
-    # loop the code is executed on, they'll just use connect_on_loop directly.
     loop = None
     try:
-        loop = asyncio.get_event_loop()
-    except:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
         pass
 
     if loop is None:
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+    if loop.is_closed():
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
@@ -517,12 +519,20 @@ def _connect_async(f, conn_factory=conn.CozmoConnection, connector=None):
         loop.run_forever()
 
 
-_sync_loop = asyncio.new_event_loop()
+# Use a function to create the loop when needed instead of a global
+def _get_sync_loop():
+    '''Get or create the sync event loop'''
+    if not hasattr(_get_sync_loop, '_loop') or _get_sync_loop._loop.is_closed():
+        _get_sync_loop._loop = asyncio.new_event_loop()
+    return _get_sync_loop._loop
+
+
 def _connect_sync(f, conn_factory=conn.CozmoConnection, connector=None):
+    sync_loop = _get_sync_loop()
     abort_future = concurrent.futures.Future()
     conn_factory = functools.partial(conn_factory, _sync_abort_future=abort_future)
-    lt = _LoopThread(_sync_loop, conn_factory=conn_factory, connector=connector, abort_future=abort_future)
-    _sync_loop.set_exception_handler(functools.partial(_sync_exception_handler, abort_future))
+    lt = _LoopThread(sync_loop, conn_factory=conn_factory, connector=connector, abort_future=abort_future)
+    sync_loop.set_exception_handler(functools.partial(_sync_exception_handler, abort_future))
 
     coz_conn = lt.start()
 
@@ -754,7 +764,7 @@ def setup_basic_logging(general_log_level=None, protocol_log_level=None,
         warnings.filterwarnings(deprecated_filter, category=DeprecationWarning)
 
     if general_log_level is None:
-        general_log_level = os.environ.get('COZMO_LOG_LEVEL', logging.INFO)
+       general_log_level = os.environ.get('COZMO_LOG_LEVEL', logging.INFO)
     if protocol_log_level is None:
         protocol_log_level = os.environ.get('COZMO_PROTOCOL_LOG_LEVEL', logging.INFO)
     if protocol_log_level:
@@ -771,17 +781,17 @@ def setup_basic_logging(general_log_level=None, protocol_log_level=None,
     f = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
     h.setFormatter(f)
     logger.addHandler(h)
-    logger. setLevel(general_log_level)
+    logger.setLevel(general_log_level)
     if protocol_log_level is not None:
         logger_protocol.addHandler(h)
         logger_protocol.setLevel(protocol_log_level)
 
 
 def run_program(f, use_viewer=False, conn_factory=conn.CozmoConnection,
-                connector=None, force_viewer_on_top=False,
-                deprecated_filter="default", use_3d_viewer=False,
-                show_viewer_controls=True,
-                exit_on_connection_error=True):
+            connector=None, force_viewer_on_top=False,
+            deprecated_filter="default", use_3d_viewer=False,
+            show_viewer_controls=True,
+            exit_on_connection_error=True):
     '''Connect to Cozmo and run the provided program/function f.
 
     Args:
@@ -841,10 +851,10 @@ def run_program(f, use_viewer=False, conn_factory=conn.CozmoConnection,
     try:
         if use_3d_viewer:
             connect_with_3dviewer(wrapper, conn_factory=conn_factory, connector=connector,
-                                  enable_camera_view=use_viewer, show_viewer_controls=show_viewer_controls)
+                                    enable_camera_view=use_viewer, show_viewer_controls=show_viewer_controls)
         elif use_viewer:
             connect_with_tkviewer(wrapper, conn_factory=conn_factory, connector=connector,
-                                  force_on_top=force_viewer_on_top)
+                                    force_on_top=force_viewer_on_top)
         else:
             connect(wrapper, conn_factory=conn_factory, connector=connector)
     except KeyboardInterrupt:

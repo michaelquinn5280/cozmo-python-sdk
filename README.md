@@ -8,10 +8,6 @@ SDK documentation: [https://cozmosdk.ddl.io/](https://cozmosdk.ddl.io/ "https://
 
 # IMPORTANT
 
-In order to use the Cozmo SDK in 2025 you have to install cozmoclad from this repository, you can do this by cloning this repo and running:
+In order to use the Cozmo SDK in 2025 you have to install the cozmo library from this repository using:
 
-`pip3 install --user './cozmoclad/cozmoclad-3.6.6-py3-none-any.whl'`
-
-or downloading [cozmoclad-3.6.6-py3-none-any.whl](https://raw.githubusercontent.com/DDLbots/cozmo-python-sdk/refs/heads/master/cozmoclad/cozmoclad-3.6.6-py3-none-any.whl) and installing it with pip by running
-
-`pip3 install --user 'path/to/cozmoclad-3.6.6-py3-none-any.whl'`
+`pip3 install --user Pillow numpy PyOpenGL https://cozmosdk.anki.bot/1.4.12/cozmoclad-3.6.6-py3-none-any.whl https://cozmosdk.anki.bot/1.4.12/cozmo-1.4.12-py3-none-any.whl`

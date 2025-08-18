@@ -875,7 +875,7 @@ class Robot(event.Dispatcher):
 
             self._idle_stack_depth = 0
             self.set_idle_animation(anim.Triggers.Count)
-        asyncio.ensure_future(_init(), loop=self._loop)
+        asyncio.ensure_future(_init())
 
     def _set_none_behavior(self):
         # Internal helper method called from Behavior.stop etc.
@@ -1365,7 +1365,7 @@ class Robot(event.Dispatcher):
         '''
         self.drive_wheel_motors(l_wheel_speed, r_wheel_speed, l_wheel_acc, r_wheel_acc)
         if duration:
-            await asyncio.sleep(duration, loop=self._loop)
+            await asyncio.sleep(duration)
             self.stop_all_motors()
 
     def stop_all_motors(self):
